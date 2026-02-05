@@ -19,6 +19,7 @@ let package = Package(
             targets: ["App"],
             bundleIdentifier: "tools.ars.display",
             displayVersion: "1.0",
+            appIcon: .placeholder(icon: .tv),
             supportedDeviceFamilies: [
                 .pad
             ],
@@ -31,7 +32,8 @@ let package = Package(
             capabilities: [
                 .camera(purposeString: "Video Input"),
                 .microphone(purposeString: "Audio Input")
-            ]
+            ],
+            appCategory: .productivity
         )
     ],
     targets: [
