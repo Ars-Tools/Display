@@ -52,8 +52,12 @@ struct View: SwiftUI.View {
     var body: some SwiftUI.View {
         switch videoInput {
         case.some(let video):
-            ViewRepresentable(video: video, audio: audioInput).onTapGesture {
-                videoInput = .none
+            ZStack {
+                // Layer 0: Background Color
+                Color.black.ignoresSafeArea()
+                ViewRepresentable(video: video, audio: audioInput).onTapGesture {
+                    videoInput = .none
+                }
             }
         case.none:
             Selector(discovery: videos, video: $videoStore)
@@ -67,7 +71,7 @@ struct Selector: SwiftUI.View {
     @usableFromInline
     @Binding var video: String
     @usableFromInline
-    @State var state: AVAuthorizationStatus = .notDetermined
+    @State var state: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
     @usableFromInline
     @Environment(\.dismiss) var dismiss
     @inlinable
@@ -153,7 +157,6 @@ struct Selector: SwiftUI.View {
                                             dismiss.callAsFunction()
                                         }
                                         .buttonStyle(.glass)
-                                        .frame(maxWidth: .some(.infinity))
                                     }
                                 }
                             }
@@ -211,6 +214,13 @@ struct ViewRepresentable: UIViewRepresentable {
         case let layer as AVCaptureVideoPreviewLayer:
             layer.session = context.coordinator.session
             layer.videoGravity = .resizeAspect
+            switch layer.connection {
+            case.some(let connection) where connection.isVideoMirroringSupported:
+                connection.automaticallyAdjustsVideoMirroring = false
+                connection.isVideoMirrored = false
+            case.some,.none:
+                break
+            }
         default:
             break
         }
